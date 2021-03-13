@@ -36,13 +36,10 @@ fn main() {
     for j in (0..IMAGE_HEIGHT).rev() {
         eprint!("\rScanlines remaining: {} ", j);
         for i in 0..IMAGE_WIDTH {
-            let pixel_color: Color = Color {
-                e:[
-                    (i as f64)/((IMAGE_WIDTH-1) as f64),
-                    (j as f64)/((IMAGE_HEIGHT-1) as f64),
-                    0.25
-                    ]
-                };
+            let u = (i as f64)/((IMAGE_WIDTH-1) as f64);
+            let v = (j as f64)/((IMAGE_HEIGHT-1) as f64);
+            let r = Ray::new(origin, lower_left_corner + u*horizontal + v*vertical - origin);
+            let pixel_color = ray_color(r);
             write_color(pixel_color);
         }
     }
