@@ -1,7 +1,9 @@
 use color::write_color;
 use vec3::Color;
+use ray::Ray;
 pub mod vec3;
 pub mod color;
+pub mod ray;
 
 fn main() {
     const IMAGE_WIDTH:i32 = 256;
