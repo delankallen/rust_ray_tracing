@@ -1,4 +1,5 @@
-use std::ops;
+use std::ops::{self, Range};
+use rand::Rng;
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3 {
     pub e: [f64; 3]
@@ -37,6 +38,26 @@ impl Vec3 {
 
     pub fn unit_vector (v:Self) -> Self {
         v/v.length()
+    }
+
+    pub fn random() -> Self {
+        let mut rng = rand::thread_rng();
+        Self {
+            e: [
+                rng.gen(), rng.gen(), rng.gen()
+            ]
+        }
+    }
+
+    pub fn random_range(range: Range<f64>) -> Self {
+        let mut rng = rand::thread_rng();
+        Self {
+            e: [
+                rng.gen_range(range.clone()),
+                rng.gen_range(range.clone()),
+                rng.gen_range(range.clone())
+            ]
+        }
     }
 }
 
@@ -152,3 +173,15 @@ impl ops::Div<f64> for Vec3 {
 
 pub type Point3 = Vec3;
 pub type Color = Vec3;
+
+pub fn random_in_unit_sphere() -> Vec3 {
+    loop {
+        let p = Vec3::random_range(-1.0..1.0);
+        if p.length_squared() >= 1.0 { continue };
+        return p;
+    }
+}
+
+pub fn random_unit_vector() -> Vec3 {
+    Vec3::unit_vector(random_in_unit_sphere())
+}
