@@ -1,16 +1,18 @@
-use crate::{hittable::{HitRecord, Hittable}, ray::Ray, vec3::{Point3, Vec3}};
+use crate::{hittable::{HitRecord, Hittable}, material::{Material}, ray::Ray, vec3::{Point3, Vec3}};
 
-#[derive(Debug, Clone, Copy)]
+
 pub struct Sphere {
     center: Point3,
-    radius: f64
+    radius: f64,
+    material: Material
 }
 
 impl Sphere {
-    pub fn new(center:Point3, radius:f64) -> Self {
+    pub fn new(center:Point3, radius:f64, material:Material) -> Self {
         Sphere {
             center,
-            radius
+            radius,
+            material
         }
     }
 }
@@ -36,6 +38,7 @@ impl Hittable for Sphere {
 
         let outward_normal:Vec3 = (r.at(root) - self.center) / self.radius;
         let f_face = Vec3::dot(r.direction(), outward_normal) < 0.0;
+        let material = self.material;
 
         return Some(HitRecord {
             t: root,
@@ -44,6 +47,7 @@ impl Hittable for Sphere {
                 true => outward_normal,
                 false => -outward_normal
             },
+            material,
             front_face: f_face
         });
     }

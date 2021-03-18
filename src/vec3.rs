@@ -1,6 +1,6 @@
-use std::ops::{self, Range};
+use std::{ops::{self, Neg, Range}};
 use rand::Rng;
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct Vec3 {
     pub e: [f64; 3]
 }
@@ -58,6 +58,11 @@ impl Vec3 {
                 rng.gen_range(range.clone())
             ]
         }
+    }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        return (self.e[0].abs() < s) && (self.e[1].abs() < s) && (self.e[2].abs() < s)
     }
 }
 
@@ -182,6 +187,26 @@ pub fn random_in_unit_sphere() -> Vec3 {
     }
 }
 
+pub fn random_in_unit_disk() -> Vec3 {
+    loop {
+        let mut rng = rand::thread_rng();
+        let p = Vec3::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0), 0.0);
+        if p.length_squared() >= 1.0 { continue; }
+        return p;
+    }
+}
+
 pub fn random_unit_vector() -> Vec3 {
     Vec3::unit_vector(random_in_unit_sphere())
+}
+
+pub fn reflect(v:Vec3, n:Vec3) -> Vec3 {
+    v - 2.0*Vec3::dot(v,n)*n
+}
+
+pub fn refract(uv:Vec3, n:Vec3, etai_over_etat:f64) -> Vec3 {
+    let cos_theta = f64::min(Vec3::dot(-uv, n), 1.0);
+    let r_out_perp:Vec3 = etai_over_etat * (uv + cos_theta*n);
+    let r_out_parallel = (1.0-r_out_perp.length_squared()).abs().sqrt().neg() * n;
+    r_out_perp + r_out_parallel
 }
