@@ -1,7 +1,7 @@
 use crate::vec3::Color;
 use crate::utility_funcs::clamp;
 
-pub fn write_color(pixel_color:Color, samples_per_pixel:f64) {
+pub fn write_color(pixel_color:Color, samples_per_pixel:f32) {
     let mut r = pixel_color.x();
     let mut g = pixel_color.y();
     let mut b = pixel_color.z();
@@ -17,7 +17,7 @@ pub fn write_color(pixel_color:Color, samples_per_pixel:f64) {
         (256.0 * clamp(b, 0.0, 0.999)) as u32
     )
 }
-// pub fn write_color(pixel_color:Color, samples_per_pixel:f64) -> (u32,u32,u32) {
+// pub fn write_color(pixel_color:Color, samples_per_pixel:f32) -> (u32,u32,u32) {
 //     let mut r = pixel_color.x();
 //     let mut g = pixel_color.y();
 //     let mut b = pixel_color.z();
