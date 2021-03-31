@@ -71,6 +71,10 @@ impl Vec3 {
             return p;
         }
     }
+
+    pub fn random_unit_vector(rng: &mut impl Rng) -> Self {
+        return Vec3::random_in_unit_sphere(rng).unit_vector();
+    }
     
     pub fn random_in_unit_disc(rng: &mut impl Rng) -> Self {
         loop {
@@ -87,10 +91,10 @@ impl Vec3 {
         Vec3(rng.gen_range(range.clone()), rng.gen_range(range.clone()), rng.gen_range(range.clone()))
     }
 
-    // pub fn near_zero(&self) -> bool {
-    //     let s = 1e-8;
-    //     return (self.e[0].abs() < s) && (self.e[1].abs() < s) && (self.e[2].abs() < s)
-    // }
+    pub fn near_zero(&self) -> bool {
+        let s = 1e-8;
+        return (self.0.abs() < s) && (self.1.abs() < s) && (self.2.abs() < s)
+    }
 }
 
 impl ops::Neg for Vec3 {
@@ -99,6 +103,15 @@ impl ops::Neg for Vec3 {
     #[inline]
     fn neg(self) -> Self::Output {
         self.map(Neg::neg)
+    }
+}
+
+impl std::ops::Add<Vec3> for f32 {
+    type Output = Vec3;
+
+    #[inline]
+    fn add(self, rhs: Vec3) -> Self::Output {
+        rhs.map(|x| self + x)
     }
 }
 
@@ -189,14 +202,9 @@ pub fn reflect(v:Vec3, n:Vec3) -> Vec3 {
 }
 
 #[inline]
-pub fn refract(v:Vec3, n:Vec3, etai_over_etat:f32) -> Option<Vec3> {
-    let uv = v.unit_vector();
-    let dt = uv.dot(n);
-    let discriminant = 1.0 - etai_over_etat * etai_over_etat * (1. - dt * dt);
-
-    if discriminant > 0. {
-        Some(etai_over_etat * (uv - dt * n) - discriminant.sqrt() * n)
-    } else {
-        None
-    }
+pub fn refract(uv:Vec3, n:Vec3, etai_over_etat:f32) -> Vec3 {
+    let cos_theta = f32::min((-uv).dot(n), 1.0);
+    let r_out_perp = etai_over_etat * (uv + cos_theta*n);
+    let r_out_parallel = (1.0 - r_out_perp.length_squared()).abs().sqrt().neg() * n;
+    r_out_perp + r_out_parallel
 }

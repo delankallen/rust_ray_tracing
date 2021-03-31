@@ -31,28 +31,31 @@ impl Hittable for Sphere {
         let half_b = oc.dot(r.direction);
         let c = oc.length_squared() - self.radius * self.radius;
 
-        let discriminant = half_b * half_b - a * c;        
-        let sqrtd = discriminant.sqrt();
+        let discriminant = half_b * half_b - a * c;
 
-        if discriminant > 0.0 {
-            for &t in &[
-                (-half_b - sqrtd) / a,
-                (-half_b + sqrtd) / a,
-            ] {
-                if t < t_range.end && t >= t_range.start {
-                    let p = r.at(t);
-                    let outward_normal:Vec3 = (r.at(t) - self.center) / self.radius;
-                    return Some(HitRecord {
-                        p,
-                        normal: outward_normal,
-                        material: &self.material,
-                        t,
-                        front_face: r.direction.dot(outward_normal) < 0.0,                        
-                    })
-                }
+        if discriminant < 0.0 {return None;};
+        let sqrtd = discriminant.sqrt();
+        let mut root = (-half_b - sqrtd)/a;
+        if root < t_range.start || t_range.end < root {
+            root = (-half_b + sqrtd) / a;
+            if root < t_range.start || t_range.end < root {
+                return None;
             }
-            
         }
-        None
+
+        let outward_normal:Vec3 = (r.at(root) - self.center) / self.radius;
+        let f_face = r.direction.dot(outward_normal) < 0.0;
+        // let material = self.material;
+
+        return Some(HitRecord {
+            t: root,
+            p: r.at(root),
+            normal: match f_face {
+                true => outward_normal,
+                false => -outward_normal
+            },
+            material: &self.material,
+            front_face: f_face
+        });
     }
 }

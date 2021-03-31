@@ -19,13 +19,13 @@ impl<'r, T: HittableList + ?Sized> HittableList for &'r T {
 impl HittableList for Vec<Box<dyn Hittable>> {
     fn hit_top<'a>(&'a self, ray: &Ray, rng: &mut impl Rng) -> Option<HitRecord<'a>> {
         const NEAR: f32 = 0.001;
-        let mut nearest = std::f32::MAX;
+        let mut nearest = std::f32::INFINITY;
         let mut hit_record = None;
 
         for obj in self {
             if let Some(rec) = obj.hit(ray, NEAR..nearest, &mut || rng.gen()) {
                 nearest = rec.t;
-                hit_record = Some(rec); 
+                hit_record = Some(rec);
             }
         }
 
